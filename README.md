@@ -10,12 +10,38 @@
 
 ## 快速开始
 
+### 1. 创建虚拟环境（首次）
+
 ```bash
-pip install -r requirements.txt   # 如果有额外依赖的话
+# Windows
+python -m venv venv
+
+# macOS / Linux
+python3 -m venv venv
+```
+
+### 2. 激活虚拟环境
+
+```bash
+# Windows (cmd)
+venv\Scripts\activate
+
+# Windows (PowerShell)
+venv\Scripts\Activate.ps1
+
+# macOS / Linux
+source venv/bin/activate
+```
+
+### 3. 启动服务
+
+```bash
 python server.py
 ```
 
 浏览器访问 `http://localhost:8765`
+
+> 本项目仅依赖 Python 标准库，无需 `pip install`。
 
 ## 项目结构
 
