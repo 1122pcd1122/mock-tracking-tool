@@ -1,0 +1,37 @@
+// Mock 派券浮层数据 - uiStyle=100 普通浮层（降价提醒，首页）
+// API: POST /vips-mobile/rest/layout/productList/eventData/v1
+//
+// 追加到 Fiddler ScriptEditor 的 OnBeforeResponse 函数中
+
+    if (oSession.uriContains("/layout/productList/eventData/v1")
+        && oSession.responseCode == 200)
+    {
+        var respBody = oSession.GetResponseBodyAsString();
+        if (String.IsNullOrEmpty(respBody)) return;
+
+        try {
+            var newBody = respBody;
+
+            if (newBody.indexOf('"floaterData"') === -1) {
+                var insertPattern = new System.Text.RegularExpressions.Regex(
+                    '("data"\\s*:\\s*\\{)',
+                    System.Text.RegularExpressions.RegexOptions.None
+                );
+                var mockFloaterData = '$1"floaterData":{"layer":{"popupKey":"mix_common_act2961_2043123","extraRecKey":"6918954905541647069","viewInfo":{"site":"bottom","icon":"http://h2.appsimg.com/a.appsimg.com/upload/merchandise/pdcvis/2023/05/24/124/8d6729ca-5ba3-40b9-9afe-01da5c67100c.jpg","bgImage":"http://b.appsimg.com/upload/momin/2024/11/30/168/1732933007221.png","title":[{"text":"您加购的商品 现在降价","textColor":"#1B1B1B"},{"text":"￥134.00","textColor":"#FF0777"}],"content":[{"text":"雅诗兰黛面部精华","textColor":"#1B1B1B"}]},"jumper":{"jumpUrl":"viprouter://checkout/cart_page?size_id=6918954905541651165"},"showAfterTime":0,"closeAfterTime":1000,"effectiveDays":0,"isFreqControl":0,"uiStyle":"100","enableClose":1,"closeIcon":"","vibrate":0,"animate":0,"hasFloatBall":0},"scene":"floater:home"},';
+                newBody = insertPattern.Replace(newBody, mockFloaterData);
+            }
+
+            if (newBody.indexOf('"type":8') === -1 && newBody.indexOf('"type":"8"') === -1) {
+                var typePattern = new System.Text.RegularExpressions.Regex(
+                    '("type"\\s*:\\s*)"[^"]*"',
+                    System.Text.RegularExpressions.RegexOptions.None
+                );
+                newBody = typePattern.Replace(newBody, '$1"8"');
+            }
+
+            oSession.utilSetResponseBody(newBody);
+            FiddlerObject.log("[CouponFloat Mock] 已注入 floaterData (uiStyle=100 降价浮层)");
+        } catch (e) {
+            FiddlerObject.log("[CouponFloat Mock] 错误: " + e.Message);
+        }
+    }

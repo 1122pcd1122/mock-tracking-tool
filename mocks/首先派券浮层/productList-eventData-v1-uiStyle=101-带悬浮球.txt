@@ -1,0 +1,48 @@
+// Mock 派券浮层数据 - uiStyle=101 领券浮层（带悬浮球，商品详情页）
+// API: POST /vips-mobile/rest/layout/productList/eventData/v1
+//
+// 追加到 Fiddler ScriptEditor 的 OnBeforeResponse 函数中
+
+    if (oSession.uriContains("/layout/productList/eventData/v1")
+        && oSession.responseCode == 200)
+    {
+        var respBody = oSession.GetResponseBodyAsString();
+        if (String.IsNullOrEmpty(respBody)) return;
+
+        try {
+            var newBody = respBody;
+
+            if (newBody.indexOf('"floaterData"') === -1) {
+                var insertPattern = new System.Text.RegularExpressions.Regex(
+                    '("data"\\s*:\\s*\\{)',
+                    System.Text.RegularExpressions.RegexOptions.None
+                );
+                var mockFloaterData = '$1"floaterData":{"layer":{"popupKey":"sn_855923_100118953","viewInfo":{"site":"bottom","icon":"https://a.vpimg3.com/upload/brandcool/0/b6a75e6fe56142d7a0d63665628a6691/10011895/black2.png","bgImage":"http://b.appsimg.com/upload/momin/2022/07/27/48/1658916128311.png","title":[{"text":"恭喜你获得一张超值优惠券","textColor":"#222222"}],"content":[{"text":"¥30","textColor":"#FB245B"},{"text":"，满300元可用，当前商品可用","textColor":"#222222"}]},"coupon":"mock_coupon_data","jumper":{"targetAction":"76","targetParams":{"jumpAuto":"1","jumpToast":"自动跳转凑单列表","jumpViprouter":"viprouter://productlist/new_add_fit_order?add_order_active_nos=16696762"}},"showAfterTime":0,"closeAfterTime":100,"effectiveDays":0,"isFreqControl":0,"uiStyle":"101","enableClose":1,"closeIcon":"http://b.appsimg.com/upload/momin/2023/01/10/2/1673332666981.png","vibrate":1,"animate":1,"hasFloatBall":1,"floatBallInfo":{"bgImage":"http://b.appsimg.com/upload/momin/2022/07/27/123/1658916231934.png","fav":"30","thresholdTips":"满300可用","action":"viprouter://productlist/new_add_fit_order?add_order_active_nos=15466555"}},"scene":"floater:detail"},';
+                newBody = insertPattern.Replace(newBody, mockFloaterData);
+            }
+
+            if (newBody.indexOf('"type":8') === -1 && newBody.indexOf('"type":"8"') === -1) {
+                var typePattern = new System.Text.RegularExpressions.Regex(
+                    '("type"\\s*:\\s*)"[^"]*"',
+                    System.Text.RegularExpressions.RegexOptions.None
+                );
+                newBody = typePattern.Replace(newBody, '$1"8"');
+            }
+
+            // 确保 sceneCode 包含 detail（商品详情页场景）
+            if (newBody.indexOf('"sceneCode":"floater:detail"') === -1
+                && newBody.indexOf('"sceneCode":"floater:home"') > -1) {
+                newBody = newBody.replace('"sceneCode":"floater:home"', '"sceneCode":"floater:detail"');
+            }
+
+            oSession.utilSetResponseBody(newBody);
+            FiddlerObject.log("[CouponFloat Mock] 已注入 floaterData (uiStyle=101 带悬浮球)");
+        } catch (e) {
+            FiddlerObject.log("[CouponFloat Mock] 错误: " + e.Message);
+        }
+    }
+
+// =============================================
+// 说明：此用例包含 floatBallInfo（领前悬浮球），
+// 浮层关闭后会显示悬浮球入口，点击后再次弹出浮层。
+// =============================================

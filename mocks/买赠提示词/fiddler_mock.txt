@@ -1,0 +1,26 @@
+// 商详买赠活动提示语优化 - Mock giftTab.tips 字段
+// 追加到 Fiddler ScriptEditor 的 OnBeforeResponse 函数中
+
+    // 拦截商详主接口
+    if (oSession.uriContains("/shopping/app/detail/main/v6")
+        && oSession.responseCode == 200)
+    {
+        var respBody = oSession.GetResponseBodyAsString();
+        if (String.IsNullOrEmpty(respBody)) return;
+
+        try {
+            // 匹配 giftTab 内已有的 "tips":{ ，在 { 后面追加 "tips" 文案
+            var pattern = new System.Text.RegularExpressions.Regex(
+                '("giftTab"\\s*:\\s*\\{)',
+                System.Text.RegularExpressions.RegexOptions.None
+            );
+            var replacement = '$1"tips":"数量有限，赠完即止，实际赠品以下单为准",';
+            var newBody = pattern.Replace(respBody, replacement);
+
+            oSession.utilSetResponseBody(newBody);
+
+            FiddlerObject.log("[giftTab.tips Mock] 已注入 tips");
+        } catch (e) {
+            FiddlerObject.log("[giftTab.tips Mock] 错误: " + e.Message);
+        }
+    }

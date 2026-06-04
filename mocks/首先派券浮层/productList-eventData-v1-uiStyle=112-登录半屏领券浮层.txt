@@ -1,0 +1,44 @@
+// Mock 派券浮层数据 - uiStyle=112 登录半屏领券浮层（首页）
+// API: POST /vips-mobile/rest/layout/productList/eventData/v1
+//
+// 追加到 Fiddler ScriptEditor 的 OnBeforeResponse 函数中
+// 注意：此 uiStyle 走 LayerViewCustomStyle，TouchDelegate 已生效。
+
+    if (oSession.uriContains("/layout/productList/eventData/v1")
+        && oSession.responseCode == 200)
+    {
+        var respBody = oSession.GetResponseBodyAsString();
+        if (String.IsNullOrEmpty(respBody)) return;
+
+        try {
+            var newBody = respBody;
+
+            if (newBody.indexOf('"floaterData"') === -1) {
+                var insertPattern = new System.Text.RegularExpressions.Regex(
+                    '("data"\\s*:\\s*\\{)',
+                    System.Text.RegularExpressions.RegexOptions.None
+                );
+                var mockFloaterData = '$1"floaterData":{"layer":{"action":{"actionType":"loginWithCoupon"},"animate":0,"buryPoint":"{\\"zone_id\\":\\"12277\\",\\"ad_id\\":\\"344535\\",\\"code\\":\\"7470\\",\\"m_name\\":\\"1\\",\\"scene_entry_id\\":\\"-99\\",\\"biz_type\\":\\"58\\",\\"activity_id\\":\\"94\\",\\"order\\":\\"1\\",\\"report_by\\":\\"app\\",\\"coupons\\":\\"30746568\\",\\"type\\":\\"login_guide\\",\\"request_id\\":\\"7969602004915471438\\",\\"scene\\":\\"home\\",\\"floater_type\\":\\"layer\\",\\"page_type\\":\\"page_channel\\",\\"page_param\\":\\"{\\\\\\"channel_name\\\\\\":\\\\\\"推荐\\\\\\",\\\\\\"isBgToFront\\\\\\":\\\\\\"0\\\\\\",\\\\\\"scene_entry_id\\\\\\":\\\\\\"undefined\\\\\\",\\\\\\"refer_page_id\\\\\\":\\\\\\"page_te_loading_1728444320772\\\\\\",\\\\\\"menu_code\\\\\\":\\\\\\"bigbshouye\\\\\\",\\\\\\"module_name\\\\\\":\\\\\\"com.achievo.vipshop.homepage\\\\\\",\\\\\\"is_back_page\\\\\\":\\\\\\"0\\\\\\"}\\"}","closeAfterTime":10,"closeIcon":"https://h2.appsimg.com/b.appsimg.com/upload/mst/2024/10/09/137/c55fae77fbfc0b1613ab40329e0f5305.png","countdown":1,"coupon":"4nltMwsiGeGtrQLZE4k/x8mzyDLXRdqsfYYaOu7/WaVovn+BEr56iwmfg4hVPqy+KgxteEhMlCDKYkscd5YPz2udIolAAHNIkJe+l4I2H2VGLLl1CMfxPoOitywXp3YL7YCEU3rL/4BeWVtiCFYQnhRHMpN92lpU/xCpqFzaslE=","jumper":{"jumpUrl":null,"targetAction":"76"},"effectiveDays":1,"enableClose":1,"fullScreen":0,"hasFloatBall":0,"isFreqControl":1,"popupAfter":{"buttons":[{"action":"","buttonTitle":"知道了"}],"couponBgImage":"https://h2.appsimg.com/b.appsimg.com/upload/mst/2024/10/09/109/8b64b1def775c03cb4a4b66e51cae141.png","desc":{"text":"满60元可用","textColor":"#CB1A27"},"price":{"text":"30","textColor":"#CB1A27"},"priceSuffix":{"text":"元","textColor":"#CB1A27"},"tips":[{"text":"·受邀用户可享，领取后3天内有效","textColor":"#9F0C17"},{"text":"·限唯品自营、唯品国际,特殊商品除外","textColor":"#9F0C17"},{"text":"·同一用户在app端或小程序端仅限领取一次","textColor":"#9F0C17"}],"title":{"text":"恭喜获得1张全品类券","textColor":"#CB1A27"},"type":"1"},"popupKey":"mix_common_act94_344535","refreshCurPage":0,"refreshFlag":0,"showAfterTime":1,"skipView":0,"uiStyle":"112","vibrate":0,"viewInfo":{"bgImage":"https://h2.appsimg.com/b.appsimg.com/upload/mst/2024/10/10/133/91fa702076d335d0a5879cc7eb1a0551.png","site":"bottom","title":[{"text":"登录领","textColor":"#FFFFFF"},{"text":"30元","textColor":"#F03867"},{"text":"新人优惠券","textColor":"#FFFFFF"}]},"wechatOfficialAccount":0},"scene":"floater:home"},';
+                newBody = insertPattern.Replace(newBody, mockFloaterData);
+            }
+
+            if (newBody.indexOf('"type":8') === -1 && newBody.indexOf('"type":"8"') === -1) {
+                var typePattern = new System.Text.RegularExpressions.Regex(
+                    '("type"\\s*:\\s*)"[^"]*"',
+                    System.Text.RegularExpressions.RegexOptions.None
+                );
+                newBody = typePattern.Replace(newBody, '$1"8"');
+            }
+
+            oSession.utilSetResponseBody(newBody);
+            FiddlerObject.log("[CouponFloat Mock] 已注入 floaterData (uiStyle=112 登录半屏领券浮层)");
+        } catch (e) {
+            FiddlerObject.log("[CouponFloat Mock] 错误: " + e.Message);
+        }
+    }
+
+// =============================================
+// 说明：uiStyle=112 → LayerViewCustomStyle
+// 关闭按钮（底部 close_btn_ly 或顶部 top_close_btn_view）
+// TouchDelegate 已扩大到 24px × 24px 热区。
+// =============================================

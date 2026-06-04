@@ -1,0 +1,20 @@
+// Mock 派券浮层数据 - uiStyle=100 个人中心完善尺码浮层
+// API: POST /vips-mobile/rest/layout/productList/eventData/v1
+//
+// 追加到 Fiddler ScriptEditor 的 OnBeforeResponse 函数中
+// 此 uiStyle 走 LayerViewCustomStyle，enableClose=1，TouchDelegate 已生效。
+
+    if (oSession.uriContains("/layout/productList/eventData/v1")
+        && oSession.responseCode == 200)
+    {
+        var fullMock = '{"code":1,"data":{"eventAction":{"type":8,"arrange":"1_floater:usercenter_n_8","sceneCode":"floater:usercenter","eventType":1,"eventCode":"floater:usercenter"},"floaterData":{"layer":{"animate":0,"buryPoint":"{\\"zone_id\\":\\"20404024\\",\\"ad_id\\":\\"1450216\\",\\"code\\":\\"10157122\\",\\"m_name\\":\\"个人中心弹窗/浮层\\",\\"scene_entry_id\\":\\"-99\\",\\"biz_type\\":\\"9\\",\\"activity_id\\":\\"1387\\",\\"order\\":\\"1\\",\\"request_id\\":\\"-6005434856420488861\\",\\"scene\\":\\"usercenter\\",\\"report_by\\":\\"app\\",\\"floater_type\\":\\"layer\\",\\"page_type\\":\\"page_user_center\\",\\"refer_page\\":\\"page_channel\\"}","closeAfterTime":3,"closeIcon":"","countdown":0,"effectiveDays":90,"enableClose":1,"hasFloatBall":0,"isFreqControl":0,"jumper":{"jumpUrl":"viprouter://webview/specialpage?url=https%3A%2F%2Fh5.vip.com%2Fuser%2Fsize-role-list.html%3Fentrance%3Dmysize&disclaimer=&scene_entry_id=-99","targetAction":"2","targetParams":{"url":"https://h5.vip.com/user/size-role-list.html?entrance=mysize","scene_entry_id":"-99"}},"popupKey":"mock_100_usercenter_size_","showAfterTime":0,"skipView":0,"uiStyle":"100","vibrate":0,"viewInfo":{"bgImage":"https://h2.appsimg.com/b.appsimg.com/upload/mst/2024/10/10/133/91fa702076d335d0a5879cc7eb1a0551.png","site":"bottom"},"wechatOfficialAccount":0,"fullScreen":0},"scene":"floater:usercenter"}},"msg":"success","tid":"mock_tid_usercenter"}';
+        oSession.utilSetResponseBody(fullMock);
+        FiddlerObject.log("[CouponFloat Mock] 替换响应体 uiStyle=100 个人中心完善尺码");
+    }
+
+// =============================================
+// 说明：
+// - uiStyle=100 → LayerViewCustomStyle，enableClose=1
+// - scene=floater:usercenter（个人中心页）
+// - TouchDelegate 已扩大到 24px × 24px 热区
+// =============================================

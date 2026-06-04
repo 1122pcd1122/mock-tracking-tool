@@ -1,0 +1,37 @@
+// Mock 派券浮层数据 - uiStyle=100 普通浮层（促回购，首页）
+// API: POST /vips-mobile/rest/layout/productList/eventData/v1
+//
+// 追加到 Fiddler ScriptEditor 的 OnBeforeResponse 函数中
+
+    if (oSession.uriContains("/layout/productList/eventData/v1")
+        && oSession.responseCode == 200)
+    {
+        var respBody = oSession.GetResponseBodyAsString();
+        if (String.IsNullOrEmpty(respBody)) return;
+
+        try {
+            var newBody = respBody;
+
+            if (newBody.indexOf('"floaterData"') === -1) {
+                var insertPattern = new System.Text.RegularExpressions.Regex(
+                    '("data"\\s*:\\s*\\{)',
+                    System.Text.RegularExpressions.RegexOptions.None
+                );
+                var mockFloaterData = '$1"floaterData":{"layer":{"popupKey":"mix_common_act3187_2126908","viewInfo":{"site":"bottom","icon":"https://h2.appsimg.com/a.appsimg.com/upload/merchandise/pdcvis/618001/2022/1014/137/e331ae98-7ab9-4b0c-ad1a-4403225efb0b.jpg","bgImage":"http://b.appsimg.com/upload/momin/2024/11/13/41/1731490790102.png","title":[{"text":"叮！恭喜获得","textColor":"#FFFFFF"},{"text":"5元","textColor":"#FF0777"},{"text":"回购券","textColor":"#FFFFFF"}],"content":[{"text":"福东海人参/西洋参","textColor":"#C6C6C6"}]},"jumper":{"jumpUrl":"viprouter://webview/specialpage?url=https%3A%2F%2Fmst.vip.com"},"showAfterTime":0,"closeAfterTime":20,"effectiveDays":5,"isFreqControl":0,"uiStyle":"100","enableClose":1,"closeIcon":"","vibrate":0,"animate":0,"hasFloatBall":0},"scene":"floater:home"},';
+                newBody = insertPattern.Replace(newBody, mockFloaterData);
+            }
+
+            if (newBody.indexOf('"type":8') === -1 && newBody.indexOf('"type":"8"') === -1) {
+                var typePattern = new System.Text.RegularExpressions.Regex(
+                    '("type"\\s*:\\s*)"[^"]*"',
+                    System.Text.RegularExpressions.RegexOptions.None
+                );
+                newBody = typePattern.Replace(newBody, '$1"8"');
+            }
+
+            oSession.utilSetResponseBody(newBody);
+            FiddlerObject.log("[CouponFloat Mock] 已注入 floaterData (uiStyle=100 促回购)");
+        } catch (e) {
+            FiddlerObject.log("[CouponFloat Mock] 错误: " + e.Message);
+        }
+    }

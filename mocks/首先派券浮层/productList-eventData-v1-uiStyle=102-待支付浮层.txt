@@ -1,0 +1,36 @@
+// Mock 派券浮层数据 - uiStyle=102 待支付浮层（首页）
+// API: POST /vips-mobile/rest/layout/productList/eventData/v1
+// 注意：此 uiStyle 走 UnPayRemindLayerView，不走 LayerViewCustomStyle，TouchDelegate 未覆盖。
+
+    if (oSession.uriContains("/layout/productList/eventData/v1")
+        && oSession.responseCode == 200)
+    {
+        var respBody = oSession.GetResponseBodyAsString();
+        if (String.IsNullOrEmpty(respBody)) return;
+
+        try {
+            var newBody = respBody;
+
+            if (newBody.indexOf('"floaterData"') === -1) {
+                var insertPattern = new System.Text.RegularExpressions.Regex(
+                    '("data"\\s*:\\s*\\{)',
+                    System.Text.RegularExpressions.RegexOptions.None
+                );
+                var mockFloaterData = '$1"floaterData":{"layer":{"popupKey":"scene_home-common_act299_844500","viewInfo":null,"jumper":null,"showAfterTime":0,"closeAfterTime":0,"effectiveDays":0,"isFreqControl":0,"uiStyle":"102","enableClose":null,"closeIcon":null,"vibrate":0,"animate":0,"hasFloatBall":0,"unpayRemind":{"add_time":"1747990683","image":"http://a.vpimg3.com/upload/merchandise/pdcvis/603410/2024/1125/191/92a09e08-7081-49c9-a80e-9ed86d96ebc1_420_531.jpg","money":"604.00","order_sn":"25052317156687","presell_type":"0","productCount":"1","productName":"【山脉鞋】男装FUSION系列时尚休闲鞋","remainingTime":1723,"gotoBtnText":"去付款"}},"scene":"floater:home"},';
+                newBody = insertPattern.Replace(newBody, mockFloaterData);
+            }
+
+            if (newBody.indexOf('"type":8') === -1 && newBody.indexOf('"type":"8"') === -1) {
+                var typePattern = new System.Text.RegularExpressions.Regex(
+                    '("type"\\s*:\\s*)"[^"]*"',
+                    System.Text.RegularExpressions.RegexOptions.None
+                );
+                newBody = typePattern.Replace(newBody, '$1"8"');
+            }
+
+            oSession.utilSetResponseBody(newBody);
+            FiddlerObject.log("[CouponFloat Mock] 已注入 floaterData (uiStyle=102)");
+        } catch (e) {
+            FiddlerObject.log("[CouponFloat Mock] 错误: " + e.Message);
+        }
+    }

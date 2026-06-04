@@ -1,0 +1,44 @@
+// Mock 派券浮层数据 - uiStyle=113 不限尺寸事件浮层（首页）
+// API: POST /vips-mobile/rest/layout/productList/eventData/v1
+//
+// 追加到 Fiddler ScriptEditor 的 OnBeforeResponse 函数中
+// 注意：此 uiStyle 走 LayerViewImageStyle，无关闭按钮，TouchDelegate 不适用。
+
+    if (oSession.uriContains("/layout/productList/eventData/v1")
+        && oSession.responseCode == 200)
+    {
+        var respBody = oSession.GetResponseBodyAsString();
+        if (String.IsNullOrEmpty(respBody)) return;
+
+        try {
+            var newBody = respBody;
+
+            if (newBody.indexOf('"floaterData"') === -1) {
+                var insertPattern = new System.Text.RegularExpressions.Regex(
+                    '("data"\\s*:\\s*\\{)',
+                    System.Text.RegularExpressions.RegexOptions.None
+                );
+                var mockFloaterData = '$1"floaterData":{"layer":{"action":{"actionType":"hide"},"extraRecKey":"extraRecKey113","animate":0,"buryPoint":"{\\"zone_id\\":\\"12278\\",\\"ad_id\\":\\"344537\\",\\"code\\":\\"7471\\",\\"m_name\\":\\"1\\",\\"scene_entry_id\\":\\"-99\\",\\"biz_type\\":\\"59\\",\\"activity_id\\":\\"94\\",\\"order\\":\\"1\\",\\"report_by\\":\\"app\\",\\"type\\":\\"browse_guide\\",\\"request_id\\":\\"3947953630959322379\\",\\"scene\\":\\"home\\",\\"floater_type\\":\\"layer\\",\\"page_type\\":\\"page_channel\\",\\"page_param\\":\\"{\\\\\\"channel_name\\\\\\":\\\\\\"推荐\\\\\\",\\\\\\"isBgToFront\\\\\\":\\\\\\"0\\\\\\",\\\\\\"scene_entry_id\\\\\\":\\\\\\"undefined\\\\\\",\\\\\\"refer_page_id\\\\\\":\\\\\\"page_te_loading_1728444320772\\\\\\",\\\\\\"menu_code\\\\\\":\\\\\\"bigbshouye\\\\\\",\\\\\\"module_name\\\\\\":\\\\\\"com.achievo.vipshop.homepage\\\\\\",\\\\\\"is_back_page\\\\\\":\\\\\\"0\\\\\\"}"}","closeAfterTime":15,"closeIcon":"","countdown":1,"effectiveDays":1,"enableClose":1,"fullScreen":0,"hasFloatBall":0,"isFreqControl":1,"popupKey":"mix_common_act94_344537","showAfterTime":0,"skipView":0,"uiStyle":"113","vibrate":0,"viewInfo":{"bgImage":"https://h2.appsimg.com/b.appsimg.com/upload/mst/2024/10/10/65/4171a7ee5f96f9b423f726ddf2b9630c.png","site":"bottom"},"wechatOfficialAccount":0},"scene":"floater:home"},';
+                newBody = insertPattern.Replace(newBody, mockFloaterData);
+            }
+
+            if (newBody.indexOf('"type":8') === -1 && newBody.indexOf('"type":"8"') === -1) {
+                var typePattern = new System.Text.RegularExpressions.Regex(
+                    '("type"\\s*:\\s*)"[^"]*"',
+                    System.Text.RegularExpressions.RegexOptions.None
+                );
+                newBody = typePattern.Replace(newBody, '$1"8"');
+            }
+
+            oSession.utilSetResponseBody(newBody);
+            FiddlerObject.log("[CouponFloat Mock] 已注入 floaterData (uiStyle=113 不限尺寸事件浮层)");
+        } catch (e) {
+            FiddlerObject.log("[CouponFloat Mock] 错误: " + e.Message);
+        }
+    }
+
+// =============================================
+// 说明：uiStyle=113 → LayerViewImageStyle，仅显示一张图片，无关闭按钮视图。
+// action.actionType="hide" 无交互。
+// enableClose=1 但 View 本身不渲染关闭按钮，TouchDelegate 不需要。
+// =============================================

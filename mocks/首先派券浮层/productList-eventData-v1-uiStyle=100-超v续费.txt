@@ -1,0 +1,37 @@
+// Mock 派券浮层数据 - uiStyle=100 普通浮层（超V续费提醒，首页）
+// API: POST /vips-mobile/rest/layout/productList/eventData/v1
+//
+// 追加到 Fiddler ScriptEditor 的 OnBeforeResponse 函数中
+
+    if (oSession.uriContains("/layout/productList/eventData/v1")
+        && oSession.responseCode == 200)
+    {
+        var respBody = oSession.GetResponseBodyAsString();
+        if (String.IsNullOrEmpty(respBody)) return;
+
+        try {
+            var newBody = respBody;
+
+            if (newBody.indexOf('"floaterData"') === -1) {
+                var insertPattern = new System.Text.RegularExpressions.Regex(
+                    '("data"\\s*:\\s*\\{)',
+                    System.Text.RegularExpressions.RegexOptions.None
+                );
+                var mockFloaterData = '$1"floaterData":{"layer":{"popupKey":"mix_common_act2381_1750862","viewInfo":{"site":"bottom","bgImage":"http://b.appsimg.com/upload/momin/2022/12/23/3/1671780961484.png","title":[{"text":"您的超V年卡有效期仅剩","textColor":"#FFFFFF"},{"text":"20天","textColor":"#FFC27D"}],"content":[{"text":"已为您累计节省","textColor":"#FFFFFF"},{"text":"¥202.9","textColor":"#FFC27D"},{"text":"！","textColor":"#FFFFFF"}]},"jumper":{"targetAction":"2"},"showAfterTime":0,"closeAfterTime":100,"effectiveDays":30,"isFreqControl":0,"uiStyle":"100","enableClose":1,"closeIcon":"","vibrate":0,"animate":0,"hasFloatBall":0},"scene":"floater:home"},';
+                newBody = insertPattern.Replace(newBody, mockFloaterData);
+            }
+
+            if (newBody.indexOf('"type":8') === -1 && newBody.indexOf('"type":"8"') === -1) {
+                var typePattern = new System.Text.RegularExpressions.Regex(
+                    '("type"\\s*:\\s*)"[^"]*"',
+                    System.Text.RegularExpressions.RegexOptions.None
+                );
+                newBody = typePattern.Replace(newBody, '$1"8"');
+            }
+
+            oSession.utilSetResponseBody(newBody);
+            FiddlerObject.log("[CouponFloat Mock] 已注入 floaterData (uiStyle=100 超V续费)");
+        } catch (e) {
+            FiddlerObject.log("[CouponFloat Mock] 错误: " + e.Message);
+        }
+    }

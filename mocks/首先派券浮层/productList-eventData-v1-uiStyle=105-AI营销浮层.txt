@@ -1,0 +1,20 @@
+// Mock 派券浮层数据 - uiStyle=105 AI营销浮层（首页）
+// API: POST /vips-mobile/rest/layout/productList/eventData/v1
+//
+// 追加到 Fiddler ScriptEditor 的 OnBeforeResponse 函数中
+// 注意：enableClose=0，×关闭按钮隐藏，TouchDelegate 不适用
+
+    if (oSession.uriContains("/layout/productList/eventData/v1")
+        && oSession.responseCode == 200)
+    {
+        var fullMock = '{"code":1,"data":{"eventAction":{"type":8,"arrange":"1_floater:home_n_8","sceneCode":"floater:home","eventType":1,"eventCode":"floater:home"},"floaterData":{"layer":{"animate":0,"buryPoint":"{\\"zone_id\\":\\"20001623\\",\\"ad_id\\":\\"1438385\\",\\"code\\":\\"10002677\\",\\"m_name\\":\\"app+小程序首页弹窗\\",\\"scene_entry_id\\":\\"-99\\",\\"biz_type\\":\\"37\\",\\"activity_id\\":\\"1356\\",\\"order\\":\\"4\\",\\"report_by\\":\\"app\\",\\"type\\":\\"ai_assistant\\",\\"request_id\\":\\"-6818310460470647200\\",\\"brand_id\\":\\"102328785\\",\\"scene\\":\\"home\\",\\"floater_type\\":\\"layer\\",\\"page_type\\":\\"page_channel\\",\\"refer_page\\":\\"page_user_center\\"}","closeAfterTime":10,"closeIcon":"","countdown":0,"effectiveDays":1,"enableClose":0,"extraRecKey":"extraRecKey105","hasFloatBall":0,"isFreqControl":0,"jumper":{"jumpUrl":"viprouter://productlist/brand?brand_id=102328785&scene_entry_id=-99","targetAction":"7","targetParams":null},"popupKey":"mock_105_ai_market_","showAfterTime":0,"skipView":0,"uiStyle":"105","vibrate":0,"viewInfo":{"bgImage":"https://h2.appsimg.com/b.appsimg.com/upload/mst/2024/10/10/133/91fa702076d335d0a5879cc7eb1a0551.png","closeBtnText":"不用了","content":[{"text":"小助手为你甄选了超值优价好物～","textColor":"#222222"}],"jumpBtnText":"去逛逛","products":[{"benefitText":"已购1万+","img":"https://h2.appsimg.com/a.appsimg.com/upload/merchandise/pdcvis/2023/08/28/42/56bcd3f8-5da2-429b-8084-286db0097bc3.jpg","productId":"6918740526819313734","vipshopPrice":"87"},{"benefitText":"60天低价","img":"https://h2.appsimg.com/a.appsimg.com/upload/merchandise/pdcvis/615935/2023/0410/42/62bac7f8-6ba8-458a-a512-44ef9d573d79.jpg","productId":"6918341526706656328","vipshopPrice":"63"},{"benefitText":"加购7000+","img":"https://h2.appsimg.com/a.appsimg.com/upload/merchandise/pdcvis/600863/2023/0615/93/894be9f1-1261-4eb5-b36e-c3f028f8c139.jpg","productId":"6920300099169599883","vipshopPrice":"58"}],"site":"bottom","title":null},"wechatOfficialAccount":0,"fullScreen":0},"scene":"floater:home"}},"msg":"success","tid":"mock_tid_105"}';
+        oSession.utilSetResponseBody(fullMock);
+        FiddlerObject.log("[CouponFloat Mock] 替换响应体 uiStyle=105 AI营销浮层");
+    }
+
+// =============================================
+// 说明：
+// - uiStyle=105 → LayerViewCustomStyle（默认分支）
+// - enableClose=0 → ×关闭按钮隐藏，TouchDelegate 不适用
+// - 有 closeBtnText="不用了" 文本关闭按钮
+// =============================================

@@ -1,0 +1,45 @@
+// Mock 派券浮层数据 - uiStyle=107 导购伴随浮层（首页）
+// API: POST /vips-mobile/rest/layout/productList/eventData/v1
+//
+// 追加到 Fiddler ScriptEditor 的 OnBeforeResponse 函数中
+// 注意：此 uiStyle 走 AiFloatLayerView / AiGlobalFloatLayerView，不走 LayerViewCustomStyle，TouchDelegate 未覆盖。
+// 且 enableClose=0，关闭按钮不显示。
+
+    if (oSession.uriContains("/layout/productList/eventData/v1")
+        && oSession.responseCode == 200)
+    {
+        var respBody = oSession.GetResponseBodyAsString();
+        if (String.IsNullOrEmpty(respBody)) return;
+
+        try {
+            var newBody = respBody;
+
+            if (newBody.indexOf('"floaterData"') === -1) {
+                var insertPattern = new System.Text.RegularExpressions.Regex(
+                    '("data"\\s*:\\s*\\{)',
+                    System.Text.RegularExpressions.RegexOptions.None
+                );
+                var mockFloaterData = '$1"floaterData":{"popup":null,"layer":{"popupKey":"popup_ai_assistant_2.4.8_home","viewInfo":{"site":"bottom"},"jumper":null,"showAfterTime":0,"closeAfterTime":0,"effectiveDays":0,"isFreqControl":0,"uiStyle":"107","enableClose":0,"closeIcon":"","vibrate":0,"animate":1,"hasFloatBall":0,"assistantHelpFloater":{"app_bar":{"appBarIcon":"https://a.vpimg3.com/upload/assistant/2026/03/31/36/1743410345429.png","appBarName":"AI导购"},"searchBarHint":"全球好价 搜搜看","searchPageExtraParams":{"searchSource":"ai_assistant","searchExtra":"{\\"entry\\":\\"page_tab_home_eventdata_layer\\"}"},"searchSuggestList":[{"query":"蓝牙耳机","rank":0,"source":""},{"query":"电动牙刷","rank":1,"source":""},{"query":"防晒霜","rank":2,"source":""},{"query":"洗发水","rank":3,"source":""},{"query":"手机","rank":4,"source":""},{"query":"面膜","rank":5,"source":""},{"query":"运动鞋","rank":6,"source":""},{"query":"键盘","rank":7,"source":""}],"hideRefreshProduct":false,"floatingProducts":{"productList":[{"productId":"2404166111710179725","img":"https://h2.appsimg.com/a.appsimg.com/upload/merchandise/pdcvis/788001/2026/0411/11/2b771c0c-0e8c-4188-a15e-22964ebed9e3.jpg","price":"¥89","title":"南极人男士纯棉短袖T恤","exposureId":"exp_aiassistant_1028_1_2404166111710179725_n"},{"productId":"2404166111710179727","img":"https://h2.appsimg.com/a.appsimg.com/upload/merchandise/pdcvis/788001/2026/0411/11/dc860510-d2fe-4f48-8714-8c1615104d6e.jpg","price":"¥85","title":"南极人男士宽松短袖T恤","exposureId":"exp_aiassistant_1028_1_2404166111710179727_n"},{"productId":"2404166111710179723","img":"https://h2.appsimg.com/a.appsimg.com/upload/merchandise/pdcvis/788001/2026/0411/11/63ae775f-2bb7-45e2-9690-0b24600556bb.jpg","price":"¥85","title":"南极人男士宽松短袖T恤","exposureId":"exp_aiassistant_1028_1_2404166111710179723_n"},{"productId":"2404166111710179721","img":"https://h2.appsimg.com/a.appsimg.com/upload/merchandise/pdcvis/788001/2026/0411/11/b5810541-15f4-487c-88f4-6b1dabfeceac.jpg","price":"¥79","title":"南极人男士凉感纯棉短袖","exposureId":"exp_aiassistant_1028_1_2404166111710179721_n"}],"traceId":"01966cec140f02ef9334a7b47544ed36"}}},"scene":"floater:home"},';
+                newBody = insertPattern.Replace(newBody, mockFloaterData);
+            }
+
+            if (newBody.indexOf('"type":8') === -1 && newBody.indexOf('"type":"8"') === -1) {
+                var typePattern = new System.Text.RegularExpressions.Regex(
+                    '("type"\\s*:\\s*)"[^"]*"',
+                    System.Text.RegularExpressions.RegexOptions.None
+                );
+                newBody = typePattern.Replace(newBody, '$1"8"');
+            }
+
+            oSession.utilSetResponseBody(newBody);
+            FiddlerObject.log("[CouponFloat Mock] 已注入 floaterData (uiStyle=107 导购伴随浮层)");
+        } catch (e) {
+            FiddlerObject.log("[CouponFloat Mock] 错误: " + e.Message);
+        }
+    }
+
+// =============================================
+// 说明：enableClose=0 关闭按钮不显示，TouchDelegate 不适用。
+// uiStyle=107 → AiFloatLayerView/AiGlobalFloatLayerView，非 LayerViewCustomStyle。
+// 此用例仅作数据参考。
+// =============================================

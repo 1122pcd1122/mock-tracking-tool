@@ -1,0 +1,45 @@
+// Mock 派券浮层数据 - uiStyle=109 登录半浮层（搜索页）
+// API: POST /vips-mobile/rest/layout/productList/eventData/v1
+//
+// 追加到 Fiddler ScriptEditor 的 OnBeforeResponse 函数中
+// 注意：此 uiStyle 走 LayerViewCustomStyle（default 分支），TouchDelegate 已覆盖。
+// 但 enableClose=null 可能不显示关闭按钮。
+
+    if (oSession.uriContains("/layout/productList/eventData/v1")
+        && oSession.responseCode == 200)
+    {
+        var respBody = oSession.GetResponseBodyAsString();
+        if (String.IsNullOrEmpty(respBody)) return;
+
+        try {
+            var newBody = respBody;
+
+            if (newBody.indexOf('"floaterData"') === -1) {
+                var insertPattern = new System.Text.RegularExpressions.Regex(
+                    '("data"\\s*:\\s*\\{)',
+                    System.Text.RegularExpressions.RegexOptions.None
+                );
+                var mockFloaterData = '$1"floaterData":{"popup":null,"layer":{"extraRecKey":"extraRecKey109","popupKey":"1556857","viewInfo":null,"coupon":null,"prizeCode":null,"jumper":null,"buryPoint":"{\\"zone_id\\":\\"20009207\\",\\"ad_id\\":\\"1556857\\",\\"code\\":\\"10004305\\",\\"m_name\\":\\"【线上正在使用】搜索列表页让利入口_10004305\\",\\"scene_entry_id\\":\\"-99\\",\\"biz_type\\":\\"41\\",\\"activity_id\\":\\"1782\\",\\"order\\":\\"46\\",\\"brand_sn\\":\\"10011984\\",\\"report_by\\":\\"app\\",\\"type\\":\\"login_semi\\",\\"request_id\\":\\"-6837451348363240247\\",\\"scene\\":\\"search\\",\\"floater_type\\":\\"layer\\",\\"page_id\\":\\"欧莱雅\\",\\"page_type\\":\\"page_te_commodity_search\\",\\"mr\\":\\"-6837451497335951502\\",\\"refer_page\\":\\"page_te_globle_classify_search\\"}","showAfterTime":0,"closeAfterTime":0,"effectiveDays":0,"isFreqControl":0,"uiStyle":"109","enableClose":null,"closeIcon":null,"vibrate":0,"animate":0,"hasFloatBall":0,"floatBallInfo":null,"unpayRemind":null,"currentProductId":null,"countdown":0,"action":null,"skipView":0,"wechatOfficialAccount":0,"fullScreen":0,"wechatRemind":null},"scene":"floater:search"},';
+                newBody = insertPattern.Replace(newBody, mockFloaterData);
+            }
+
+            if (newBody.indexOf('"type":8') === -1 && newBody.indexOf('"type":"8"') === -1) {
+                var typePattern = new System.Text.RegularExpressions.Regex(
+                    '("type"\\s*:\\s*)"[^"]*"',
+                    System.Text.RegularExpressions.RegexOptions.None
+                );
+                newBody = typePattern.Replace(newBody, '$1"8"');
+            }
+
+            oSession.utilSetResponseBody(newBody);
+            FiddlerObject.log("[CouponFloat Mock] 已注入 floaterData (uiStyle=109 登录半浮层)");
+        } catch (e) {
+            FiddlerObject.log("[CouponFloat Mock] 错误: " + e.Message);
+        }
+    }
+
+// =============================================
+// 说明：uiStyle=109 → LayerViewCustomStyle（default），TouchDelegate 已覆盖。
+// enableClose=null，关闭按钮可能不显示。
+// sceneCode="search"，来自搜索列表页。
+// =============================================

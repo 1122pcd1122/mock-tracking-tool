@@ -1,0 +1,22 @@
+// Mock 派券浮层数据 - uiStyle=100 购物车降价浮层（首页）
+// API: POST /vips-mobile/rest/layout/productList/eventData/v1
+//
+// 追加到 Fiddler ScriptEditor 的 OnBeforeResponse 函数中
+// 注意：此 uiStyle 走 LayerViewCustomStyle，TouchDelegate 已生效。
+// v3 - 直接替换整个响应体，不受真实 API 响应结构影响。
+
+    if (oSession.uriContains("/layout/productList/eventData/v1")
+        && oSession.responseCode == 200)
+    {
+        var fullMock = '{"code":1,"data":{"eventAction":{"type":8,"arrange":"1_floater:home_n_8","sceneCode":"floater:home","eventType":1,"eventCode":"floater:home"},"floaterData":{"layer":{"animate":0,"buryPoint":"{\\"zone_id\\":\\"20001623\\",\\"ad_id\\":\\"1490722\\",\\"code\\":\\"10002677\\",\\"m_name\\":\\"app+小程序首页弹窗\\",\\"scene_entry_id\\":\\"-99\\",\\"biz_type\\":\\"13\\",\\"activity_id\\":\\"153\\",\\"order\\":\\"129\\",\\"report_by\\":\\"app\\",\\"productId\\":\\"6920973981237349018\\",\\"request_id\\":\\"-5989109563212838598\\",\\"scene\\":\\"home\\",\\"floater_type\\":\\"layer\\",\\"page_type\\":\\"page_channel\\",\\"refer_page\\":\\"page_te_loading\\"}","closeAfterTime":10,"closeIcon":"","countdown":0,"effectiveDays":1,"enableClose":1,"hasFloatBall":0,"isFreqControl":0,"popupKey":"mock_100_price_drop_","showAfterTime":0,"skipView":0,"uiStyle":"100","vibrate":0,"viewInfo":{"bgImage":"https://h2.appsimg.com/b.appsimg.com/upload/mst/2024/10/10/133/91fa702076d335d0a5879cc7eb1a0551.png","content":[{"text":"购物车商品降价了","textColor":"#FFFFFF"},{"text":"¥17.00","textColor":"#F03867"}],"site":"bottom","title":[{"text":"蕉下","textColor":"#FFFFFF"}]},"wechatOfficialAccount":0,"fullScreen":0},"scene":"floater:home"}},"msg":"success","tid":"mock_tid_100"}';
+        oSession.utilSetResponseBody(fullMock);
+        FiddlerObject.log("[CouponFloat Mock v3] 替换响应体 uiStyle=100");
+    }
+
+// =============================================
+// 说明：
+// - 直接替换整个响应体，不依赖原 API 响应结构
+// - bgImage 改用 HTTPS 链接（uiStyle=112 中测试通过的图片）
+// - isFreqControl=0 跳过频率控制
+// - 走 LayerViewCustomStyle，TouchDelegate 已扩大到 24px × 24px
+// =============================================

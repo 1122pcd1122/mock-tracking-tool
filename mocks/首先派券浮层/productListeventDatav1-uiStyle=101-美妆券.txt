@@ -1,0 +1,89 @@
+// 首页派券浮层关闭按钮热区优化 - Mock 派券浮层数据
+// 追加到 Fiddler ScriptEditor 的 OnBeforeResponse 函数中
+//
+// 触发两个接口：
+// 1. eventData API → VipLayerView 领券浮层（uiStyle=101）
+// 2. float_ball API → CouponFloatView / CouponFloatViewV2 旧派券悬浮球
+
+    // =============================================
+    // Mock 1: 编排中心事件数据 → 触发领券浮层
+    // =============================================
+    if (oSession.uriContains("/layout/productList/eventData/v1")
+        && oSession.responseCode == 200)
+    {
+        var respBody = oSession.GetResponseBodyAsString();
+        if (String.IsNullOrEmpty(respBody)) return;
+
+        try {
+            var newBody = respBody;
+
+            // floaterData 不存在则注入
+            if (newBody.indexOf('"floaterData"') === -1) {
+                var insertPattern = new System.Text.RegularExpressions.Regex(
+                    '("data"\\s*:\\s*\\{)',
+                    System.Text.RegularExpressions.RegexOptions.None
+                );
+                var mockFloaterData = '$1"floaterData":{"layer":{"popupKey":"mix_work_act3057_2111131","viewInfo":{"site":"bottom","bgImage":"http://b.appsimg.com/upload/momin/2024/11/30/83/1732979669139.png","content":[{"text":"喜获","textColor":"#252525"},{"text":"80","textColor":"#ff0777"},{"text":"元美妆品类券 满800元可用","textColor":"#252525"}]},"coupon":"mock_coupon_data","jumper":{"targetAction":"76","targetParams":{"jumpViprouter":"viprouter://productlist/new_add_fit_order?add_order_active_nos=32509372"}},"buryPoint":"{}","showAfterTime":0,"closeAfterTime":15,"effectiveDays":1,"isFreqControl":0,"uiStyle":"101","enableClose":1,"closeIcon":"","vibrate":0,"animate":0,"hasFloatBall":0},"scene":"floater:home"},';
+                newBody = insertPattern.Replace(newBody, mockFloaterData);
+            }
+
+            // 确保 eventAction.type 为 "8"
+            if (newBody.indexOf('"type":8') === -1 && newBody.indexOf('"type":"8"') === -1) {
+                var typePattern = new System.Text.RegularExpressions.Regex(
+                    '("type"\\s*:\\s*)"[^"]*"',
+                    System.Text.RegularExpressions.RegexOptions.None
+                );
+                newBody = typePattern.Replace(newBody, '$1"8"');
+            }
+
+            oSession.utilSetResponseBody(newBody);
+            FiddlerObject.log("[CouponFloat Mock] 已注入 eventData floaterData");
+        } catch (e) {
+            FiddlerObject.log("[CouponFloat Mock] eventData 错误: " + e.Message);
+        }
+    }
+
+    // =============================================
+    // Mock 2: 悬浮球接口 → 触发 CouponFloatView 旧派券悬浮球
+    // =============================================
+    if (oSession.uriContains("/activity/float_ball/get")
+        && oSession.responseCode == 200)
+    {
+        var respBody = oSession.GetResponseBodyAsString();
+        if (String.IsNullOrEmpty(respBody)) return;
+
+        try {
+            var newBody = respBody;
+
+            // 确保 data 中有 reminder（用券提醒悬浮球数据）
+            if (newBody.indexOf('"reminder"') === -1) {
+                var insertPattern = new System.Text.RegularExpressions.Regex(
+                    '("data"\\s*:\\s*\\{)',
+                    System.Text.RegularExpressions.RegexOptions.None
+                );
+                var mockData = '$1"reminder":{"id":"test001","countDownEndTime":"1999999999999","countDownText":"即将过期","desc":"满100可用","fav":"20","img":"https://a.vpimg3.com/upload/merchandise/pdc/786/668/644/786668644_1.jpg","hideAfterCloseTimes":"3","freeDeliverty":"0","floatKey":"test_float_key","viprouter":"","tipsWithoutViprouter":"","showHeight":"0","unit":"元"},';
+                newBody = insertPattern.Replace(newBody, mockData);
+            }
+
+            // 确保 type 为 "2"（用券提醒）
+            if (newBody.indexOf('"type":"2"') === -1) {
+                var typePattern = new System.Text.RegularExpressions.Regex(
+                    '("type"\\s*:\\s*)"[^"]*"',
+                    System.Text.RegularExpressions.RegexOptions.None
+                );
+                newBody = typePattern.Replace(newBody, '$1"2"');
+            }
+
+            // 确保 code 为 "0"
+            var codePattern = new System.Text.RegularExpressions.Regex(
+                '("code"\\s*:\\s*)"[^"]*"',
+                System.Text.RegularExpressions.RegexOptions.None
+            );
+            newBody = codePattern.Replace(newBody, '$1"0"');
+
+            oSession.utilSetResponseBody(newBody);
+            FiddlerObject.log("[CouponFloat Mock] 已注入 float_ball reminder");
+        } catch (e) {
+            FiddlerObject.log("[CouponFloat Mock] float_ball 错误: " + e.Message);
+        }
+    }

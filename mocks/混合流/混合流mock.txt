@@ -1,0 +1,25 @@
+
+		// 拦截混合流主页数据接口
+		if (oSession.uriContains("/vips-mobile/rest/layout/channel_b/data")
+			&& oSession.responseCode == 200)
+		{
+			var respBody = oSession.GetResponseBodyAsString();
+			if (String.IsNullOrEmpty(respBody)) return;
+
+			try {
+				// 匹配 wormhole 内已有的 "ext":{ ，在 { 后面追加 benefit_text
+				var pattern = new System.Text.RegularExpressions.Regex(
+					'("ext"\\s*:\\s*\\{)',
+					System.Text.RegularExpressions.RegexOptions.None
+					);
+				var replacement = '$1"benefit_text":"low_price_60d",';
+				var newBody = pattern.Replace(respBody, replacement);
+
+				oSession.utilSetResponseBody(newBody);
+
+				FiddlerObject.log("[benefit_text Mock] 已注入 low_price_60d");
+			} catch (e) {
+				FiddlerObject.log("[benefit_text Mock] 错误: " + e.Message);
+			}
+		}
+	

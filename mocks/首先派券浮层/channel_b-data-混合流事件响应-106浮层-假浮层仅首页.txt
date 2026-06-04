@@ -1,0 +1,36 @@
+// Mock 派券浮层数据 - uiStyle=106 新布局浮层（假浮层 enableClose=0，首页混合流）
+// API: channel_b/data（混合流事件响应）
+//
+// 追加到 Fiddler ScriptEditor 的 OnBeforeResponse 函数中
+// 注意：此用例 flaaterData 包裹在 data.data.eventAction 中，非标准 eventData 结构
+
+    if (oSession.uriContains("/channel_b/data")
+        && oSession.responseCode == 200)
+    {
+        var respBody = oSession.GetResponseBodyAsString();
+        if (String.IsNullOrEmpty(respBody)) return;
+
+        try {
+            var newBody = respBody;
+
+            if (newBody.indexOf('"floaterData"') === -1) {
+                var insertPattern = new System.Text.RegularExpressions.Regex(
+                    '("eventAction"\\s*:\\s*\\{)',
+                    System.Text.RegularExpressions.RegexOptions.None
+                );
+                var mockFloaterData = '$1"floaterData":{"layer":{"popupKey":"1449576","viewInfo":{"site":"bottom","bgImage":"http://b.appsimg.com/upload/momin/2023/08/31/8/1693468769952.png","bgImageDark":"http://b.appsimg.com/upload/momin/2023/08/31/160/1693468784189.png","image":"http://b.appsimg.com/upload/momin/2023/08/31/118/1693468794431.png","imageDark":"http://b.appsimg.com/upload/momin/2023/08/31/80/1693468803967.png","backwardImage":"http://b.appsimg.com/upload/momin/2023/08/31/137/1693468812793.png","backwardImageDark":"http://b.appsimg.com/upload/momin/2023/08/31/19/1693468821498.png","products":[{"img":"https://h2.appsimg.com/a.appsimg.com/upload/merchandise/pdcvis/112011/2023/0805/13/f00c281b-9c15-4c5c-b05b-371e66f0885a.jpg","productId":"6920476848612641630"}]},"jumper":{"targetAction":"2","targetParams":{}},"showAfterTime":1,"closeAfterTime":100,"effectiveDays":1,"isFreqControl":0,"uiStyle":"106","enableClose":0,"closeIcon":"","vibrate":0,"animate":0,"hasFloatBall":0},"scene":"floater:home"},';
+                newBody = insertPattern.Replace(newBody, mockFloaterData);
+            }
+
+            // 注意：channel_b 结构可能不同，如无法注入请检查实际响应格式
+            oSession.utilSetResponseBody(newBody);
+            FiddlerObject.log("[CouponFloat Mock] 已注入 floaterData (uiStyle=106 假浮层)");
+        } catch (e) {
+            FiddlerObject.log("[CouponFloat Mock] 错误: " + e.Message);
+        }
+    }
+
+// =============================================
+// 说明：enableClose=0，关闭按钮不显示，TouchDelegate 不生效。
+// 此用例仅作数据参考。
+// =============================================

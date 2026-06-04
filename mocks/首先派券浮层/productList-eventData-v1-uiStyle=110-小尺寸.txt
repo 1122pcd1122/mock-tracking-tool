@@ -1,0 +1,71 @@
+// Mock 派券浮层数据 - uiStyle=110 小尺寸浮层
+// API: POST /vips-mobile/rest/layout/productList/eventData/v1
+//
+// 追加到 Fiddler ScriptEditor 的 OnBeforeResponse 函数中
+
+    if (oSession.uriContains("/layout/productList/eventData/v1")
+        && oSession.responseCode == 200)
+    {
+        var respBody = oSession.GetResponseBodyAsString();
+        if (String.IsNullOrEmpty(respBody)) return;
+
+        try {
+            var newBody = respBody;
+
+            if (newBody.indexOf('"floaterData"') === -1) {
+                var insertPattern = new System.Text.RegularExpressions.Regex(
+                    '("data"\\s*:\\s*\\{)',
+                    System.Text.RegularExpressions.RegexOptions.None
+                );
+                var mockFloaterData = '$1"floaterData":{"layer":{"popupKey":"1447787-B-3","viewInfo":{"site":"bottom","icon":"https://a.vpimg2.com/upload/actug/2023/11/16/65/170012476128010796.png","bgImage":"https://h2.appsimg.com/b.appsimg.com/upload/mst/2023/11/23/95/3ec3a167f012927298e32e1deffba58d.jpg","title":[{"text":"浮层110样式","textColor":"#000000"}]},"jumper":{"jumpUrl":"viprouter://webview/specialpage?url=https%3A%2F%2Fmst.vip.com%2FTUHv1DHOrKsxoF4qsl10eg.php","targetAction":"2","targetParams":{"url":"https://mst.vip.com/TUHv1DHOrKsxoF4qsl10eg.php"}},"showAfterTime":0,"closeAfterTime":100,"effectiveDays":3,"isFreqControl":0,"uiStyle":"110","enableClose":1,"closeIcon":"http://b.appsimg.com/upload/momin/2023/08/30/119/1693385496082.png","hasFloatBall":0},"scene":"floater:home"},';
+                newBody = insertPattern.Replace(newBody, mockFloaterData);
+            }
+
+            if (newBody.indexOf('"type":8') === -1 && newBody.indexOf('"type":"8"') === -1) {
+                var typePattern = new System.Text.RegularExpressions.Regex(
+                    '("type"\\s*:\\s*)"[^"]*"',
+                    System.Text.RegularExpressions.RegexOptions.None
+                );
+                newBody = typePattern.Replace(newBody, '$1"8"');
+            }
+
+            oSession.utilSetResponseBody(newBody);
+            FiddlerObject.log("[CouponFloat Mock] 已注入 floaterData (uiStyle=110)");
+        } catch (e) {
+            FiddlerObject.log("[CouponFloat Mock] 错误: " + e.Message);
+        }
+    }
+
+// =============================================
+// 原始 JSON 响应（供参考）：
+// =============================================
+// {
+//   "code": 1,
+//   "msg": "success",
+//   "data": {
+//     "eventAction": {
+//       "type": 8,
+//       "arrange": "1_floater:home_n_8",
+//       "sceneCode": "floater:home",
+//       "eventScene": 0,
+//       "eventType": 1,
+//       "eventCode": "floater:home"
+//     },
+//     "floaterData": {
+//       "popup": null,
+//       "layer": {
+//         "extraRecKey": "extraRecKey110",
+//         "popupKey": "1447787-B-3",
+//         "viewInfo": {
+//           "site": "bottom",
+//           "icon": "https://a.vpimg2.com/upload/actug/2023/11/16/65/170012476128010796.png",
+//           "bgImage": "https://h2.appsimg.com/b.appsimg.com/upload/mst/2023/11/23/95/3ec3a167f012927298e32e1deffba58d.jpg",
+//           "title": [{"text": "浮层110样式", "textColor": "#000000"}]
+//         },
+//         "jumper": { ... },
+//         "enableClose": 1,
+//         "uiStyle": "110"
+//       }
+//     }
+//   }
+// }

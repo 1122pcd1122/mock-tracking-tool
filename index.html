@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<!-- AI-Generated Begin 1780596479 -->
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mock & 埋点管理工具</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="app">
+    <nav class="nav-bar">
+      <div class="nav-title">Mock & 埋点工具</div>
+      <div class="nav-tabs">
+        <button v-for="tab in tabs" :key="tab.key" :class="['nav-tab', { active: currentTab === tab.key }]" @click="currentTab = tab.key">{{ tab.label }}</button>
+      </div>
+    </nav>
+    
+    <mock-manager v-show="currentTab === 'mock'"></mock-manager>
+    <tracking-parser v-show="currentTab === 'tracking'"></tracking-parser>
+    <json-viewer-tab v-show="currentTab === 'json'"></json-viewer-tab>
+  </div>
+
+  <script src="vendor/vue.global.prod.js"></script>
+  <script src="js/utils/storage.js"></script>
+  <script src="js/utils/api.js"></script>
+  <script src="js/utils/mock-parser.js"></script>
+  <script src="js/utils/tracking-parser.js"></script>
+  <script src="js/components/json-node.js"></script>
+  <script src="js/components/mock-manager.js"></script>
+  <script src="js/components/tracking-parser.js"></script>
+  <script src="js/components/json-viewer-tab.js"></script>
+  <script src="js/app.js"></script>
+</body>
+<!-- AI-Generated End 1780596479 -->
+</html>

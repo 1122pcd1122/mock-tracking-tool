@@ -1,0 +1,37 @@
+// Mock 派券浮层数据 - uiStyle=111 订阅浮层（首页）
+// API: POST /vips-mobile/rest/layout/productList/eventData/v1
+//
+// 追加到 Fiddler ScriptEditor 的 OnBeforeResponse 函数中
+
+    if (oSession.uriContains("/layout/productList/eventData/v1")
+        && oSession.responseCode == 200)
+    {
+        var respBody = oSession.GetResponseBodyAsString();
+        if (String.IsNullOrEmpty(respBody)) return;
+
+        try {
+            var newBody = respBody;
+
+            if (newBody.indexOf('"floaterData"') === -1) {
+                var insertPattern = new System.Text.RegularExpressions.Regex(
+                    '("data"\\s*:\\s*\\{)',
+                    System.Text.RegularExpressions.RegexOptions.None
+                );
+                var mockFloaterData = '$1"floaterData":{"layer":{"popupKey":"341662","viewInfo":{"site":"bottom","bgImage":"http://b.appsimg.com/upload/momin/2023/07/19/108/1689731170925.png","bgImageDark":"https://h2.appsimg.com/b.appsimg.com/upload/mst/2023/08/22/175/b627c9061f1c3e6b88a5e6570a57f11a.png","title":[{"text":"上新品牌","textColor":"#FFFFFF"}],"content1":[{"text":"看了这么久，订阅一下？","textColor":"#FFFFFF"}]},"action":{"actionType":"sellingSubs"},"jumper":{"targetAction":"2"},"showAfterTime":0,"closeAfterTime":100,"effectiveDays":1,"isFreqControl":0,"uiStyle":"111","enableClose":1,"closeIcon":"","vibrate":0,"animate":0,"hasFloatBall":0},"scene":"floater:home"},';
+                newBody = insertPattern.Replace(newBody, mockFloaterData);
+            }
+
+            if (newBody.indexOf('"type":8') === -1 && newBody.indexOf('"type":"8"') === -1) {
+                var typePattern = new System.Text.RegularExpressions.Regex(
+                    '("type"\\s*:\\s*)"[^"]*"',
+                    System.Text.RegularExpressions.RegexOptions.None
+                );
+                newBody = typePattern.Replace(newBody, '$1"8"');
+            }
+
+            oSession.utilSetResponseBody(newBody);
+            FiddlerObject.log("[CouponFloat Mock] 已注入 floaterData (uiStyle=111)");
+        } catch (e) {
+            FiddlerObject.log("[CouponFloat Mock] 错误: " + e.Message);
+        }
+    }

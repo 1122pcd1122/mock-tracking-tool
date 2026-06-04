@@ -1,0 +1,44 @@
+// Mock 派券浮层数据 - uiStyle=104 新客信息收集半浮层（首页）
+// API: POST /vips-mobile/rest/layout/productList/eventData/v1
+//
+// 追加到 Fiddler ScriptEditor 的 OnBeforeResponse 函数中
+// 注意：此 uiStyle 走 LayerViewCustomStyle，actionType=collect，skipView=1→走信息收集弹窗
+
+    if (oSession.uriContains("/layout/productList/eventData/v1")
+        && oSession.responseCode == 200)
+    {
+        var respBody = oSession.GetResponseBodyAsString();
+        if (String.IsNullOrEmpty(respBody)) return;
+
+        try {
+            var newBody = respBody;
+
+            if (newBody.indexOf('"floaterData"') === -1) {
+                var insertPattern = new System.Text.RegularExpressions.Regex(
+                    '("data"\\s*:\\s*\\{)',
+                    System.Text.RegularExpressions.RegexOptions.None
+                );
+                var mockFloaterData = '$1"floaterData":{"layer":{"action":{"actionType":"collect","collectInfo":{"questions":{"gender":{"relyQues":"","questionId":"1","selectedOptions":["2"],"options":{"gender":[{"optionId":"1","title":"男","iconUrl":"https://h2.appsimg.com/b.appsimg.com/upload/mst/2023/05/23/162/9731b6143979ab79331729856304376b.png"},{"optionId":"2","title":"女","iconUrl":"https://h2.appsimg.com/b.appsimg.com/upload/mst/2023/05/23/79/e8407418bab87c49fd92d5a127bf40bc.png"}]}},"ageRange":{"relyQues":"","questionId":"24","selectedOptions":[],"options":{"ageRange":[{"optionId":"138","title":"19岁及以下","iconUrl":""},{"optionId":"139","title":"20-24岁","iconUrl":""},{"optionId":"140","title":"25-30岁","iconUrl":""},{"optionId":"141","title":"31-40岁","iconUrl":""},{"optionId":"142","title":"41-50岁","iconUrl":""},{"optionId":"143","title":"51-60岁","iconUrl":""},{"optionId":"144","title":"61岁及以上","iconUrl":""}]}},"preferBrand":null}}},"animate":0,"buryPoint":"{\\"zone_id\\":\\"20001623\\",\\"ad_id\\":\\"1308231\\",\\"code\\":\\"10002677\\",\\"m_name\\":\\"app+小程序首页弹窗\\",\\"scene_entry_id\\":\\"-99\\",\\"biz_type\\":\\"19\\",\\"activity_id\\":\\"1047\\",\\"order\\":\\"2\\",\\"report_by\\":\\"app\\",\\"type\\":\\"collect\\",\\"request_id\\":\\"-1579849964648409822\\",\\"scene\\":\\"home\\",\\"floater_type\\":\\"layer\\",\\"page_type\\":\\"page_channel\\",\\"refer_page\\":\\"page_te_loading\\"}","closeAfterTime":100,"closeIcon":"","countdown":0,"effectiveDays":1,"enableClose":1,"floatBallInfo":{"bgImage":"https://h2.appsimg.com/b.appsimg.com/upload/mst/2023/05/31/4/6decdcc31e4723ab84ff358cb3598149.png","closeIcon":"https://h2.appsimg.com/b.appsimg.com/upload/mst/2023/05/31/11/c037a368a4e7c00358f50dc788ae3a72.png"},"hasFloatBall":1,"isFreqControl":1,"popupKey":"1308231","showAfterTime":0,"skipView":1,"uiStyle":"104","vibrate":0,"viewInfo":{"bgImage":"http://b.appsimg.com/b.appsimg.com/upload/momin/2023/05/23/105/1684824015800.png","site":"bottom"},"wechatOfficialAccount":0},"scene":"floater:home"},';
+                newBody = insertPattern.Replace(newBody, mockFloaterData);
+            }
+
+            if (newBody.indexOf('"type":8') === -1 && newBody.indexOf('"type":"8"') === -1) {
+                var typePattern = new System.Text.RegularExpressions.Regex(
+                    '("type"\\s*:\\s*)"[^"]*"',
+                    System.Text.RegularExpressions.RegexOptions.None
+                );
+                newBody = typePattern.Replace(newBody, '$1"8"');
+            }
+
+            oSession.utilSetResponseBody(newBody);
+            FiddlerObject.log("[CouponFloat Mock] 已注入 floaterData (uiStyle=104 新客信息收集半浮层)");
+        } catch (e) {
+            FiddlerObject.log("[CouponFloat Mock] 错误: " + e.Message);
+        }
+    }
+
+// =============================================
+// 说明：uiStyle=104 → LayerViewCustomStyle，skipView=1
+// actionType=collect 且有 collectInfo → 走信息收集弹窗路径
+// TouchDelegate 已扩大到 24px × 24px 热区。
+// =============================================

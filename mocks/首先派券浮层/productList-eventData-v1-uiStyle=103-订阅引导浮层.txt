@@ -1,0 +1,37 @@
+// Mock 派券浮层数据 - uiStyle=103 订阅引导浮层（品牌页）
+// API: POST /vips-mobile/rest/layout/productList/eventData/v1
+//
+// 追加到 Fiddler ScriptEditor 的 OnBeforeResponse 函数中
+
+    if (oSession.uriContains("/layout/productList/eventData/v1")
+        && oSession.responseCode == 200)
+    {
+        var respBody = oSession.GetResponseBodyAsString();
+        if (String.IsNullOrEmpty(respBody)) return;
+
+        try {
+            var newBody = respBody;
+
+            if (newBody.indexOf('"floaterData"') === -1) {
+                var insertPattern = new System.Text.RegularExpressions.Regex(
+                    '("data"\\s*:\\s*\\{)',
+                    System.Text.RegularExpressions.RegexOptions.None
+                );
+                var mockFloaterData = '$1"floaterData":{"layer":{"popupKey":"sn_1140588_10011476","extraRecKey":"extraRecKey103","viewInfo":{"site":"bottom","icon":"https://a.vpimg3.com/upload/brandcool/0/31050c8aa717452aa50086d03dd2f883/10001064/primary2.png","bgImage":"http://b.appsimg.com/upload/momin/2023/01/10/54/1673332655029.png","title":[{"text":"真维斯","textColor":"#FFFFFF"}],"content":[{"text":"看了这么久，订阅一下？","textColor":"#FFFFFF"}]},"showAfterTime":0,"closeAfterTime":0,"effectiveDays":0,"isFreqControl":0,"uiStyle":"103","enableClose":1,"closeIcon":"http://b.appsimg.com/upload/momin/2023/01/10/2/1673332666981.png","vibrate":0,"animate":0,"hasFloatBall":0},"scene":"floater:brand"},';
+                newBody = insertPattern.Replace(newBody, mockFloaterData);
+            }
+
+            if (newBody.indexOf('"type":8') === -1 && newBody.indexOf('"type":"8"') === -1) {
+                var typePattern = new System.Text.RegularExpressions.Regex(
+                    '("type"\\s*:\\s*)"[^"]*"',
+                    System.Text.RegularExpressions.RegexOptions.None
+                );
+                newBody = typePattern.Replace(newBody, '$1"8"');
+            }
+
+            oSession.utilSetResponseBody(newBody);
+            FiddlerObject.log("[CouponFloat Mock] 已注入 floaterData (uiStyle=103)");
+        } catch (e) {
+            FiddlerObject.log("[CouponFloat Mock] 错误: " + e.Message);
+        }
+    }
