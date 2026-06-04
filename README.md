@@ -10,27 +10,16 @@
 
 ## 快速开始
 
-### 1. 创建虚拟环境（首次）
+### 1. 创建 Conda 虚拟环境（首次）
 
 ```bash
-# Windows
-python -m venv venv
-
-# macOS / Linux
-python3 -m venv venv
+conda create -n mock-tool python=3.12
 ```
 
 ### 2. 激活虚拟环境
 
 ```bash
-# Windows (cmd)
-venv\Scripts\activate
-
-# Windows (PowerShell)
-venv\Scripts\Activate.ps1
-
-# macOS / Linux
-source venv/bin/activate
+conda activate mock-tool
 ```
 
 ### 3. 启动服务
